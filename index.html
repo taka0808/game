@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テキーラルーレット！</title>
+    <style>
+        /* 全体のスタイル */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        /* タイトルのスタイル */
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+        }
+        /* ボタンのスタイル */
+        button {
+            font-size: 1.5em; /* 絵文字用に調整 */
+            padding: 10px 20px;
+            background-color: #ff6347;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #e5533d;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        /* テキーラアイコンのコンテナ */
+        #tequilaContainer {
+            margin-top: 20px;
+            font-size: 2em;
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* スライド時にコンテナ外を隠す */
+        }
+        /* スライドアニメーション */
+        @keyframes slide {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(20px); }
+            50% { transform: translateX(-20px); }
+            75% { transform: translateX(10px); }
+            100% { transform: translateX(-10px); }
+        }
+        .sliding {
+            display: inline-block;
+            animation: slide 0.4s ease-in-out infinite alternate; /* 不規則なスライド */
+        }
+        /* 結果テキストのスタイル */
+        #resultText {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- ゲームのタイトル -->
+    <h1>テキーラルーレット！</h1>
+    <!-- ベルを鳴らすボタン（絵文字🛎️を使用） -->
+    <button id="bellButton" onclick="ringBell()">🛎️</button>
+    <!-- テキーラアイコンと結果テキストを表示するコンテナ -->
+    <div id="tequilaContainer">
+        <div id="tequilaIcons"></div>
+        <div id="resultText"></div>
+    </div>
+    <!-- ベル音用のオーディオ要素 -->
+    <audio id="bellSound" src="https://www.soundjay.com/buttons/bell-ring-01.mp3"></audio>
+
+    <script>
+        // ベルを鳴らすボタンが押されたときの処理
+        function ringBell() {
+            // ボタンを無効化
+            const button = document.getElementById('bellButton');
+            button.disabled = true;
+            // ベル音を再生
+            const bell = document.getElementById('bellSound');
+            bell.currentTime = 0;
+            bell.play().catch(error => {
+                console.log('音声再生エラー:', error);
+            });
+            // テキーラアイコンと結果テキストのコンテナを取得
+            const iconContainer = document.getElementById('tequilaIcons');
+            const resultText = document.getElementById('resultText');
+            // コンテナをリセット
+            iconContainer.innerHTML = '';
+            resultText.innerHTML = '';
+            // スライドアニメーション開始
+            let spinCount = 0;
+            const spinInterval = setInterval(() => {
+                // 1〜10のランダムな数を生成
+                const tempCount = Math.floor(Math.random() * 10) + 1;
+                // アイコンをリセットし、テキーラアイコンを追加
+                iconContainer.innerHTML = '';
+                iconContainer.innerHTML = '<span class="sliding">' + '🥃'.repeat(tempCount) + '</span>';
+                // 結果テキストを非表示（アニメーション中）
+                resultText.innerHTML = '';
+                spinCount++;
+                // 5秒（約50回更新）後に停止
+                if (spinCount >= 50) {
+                    clearInterval(spinInterval);
+                    // 最終的なランダムな数
+                    const finalCount = Math.floor(Math.random() * 10) + 1;
+                    // 最終的なテキーラアイコンを表示
+                    iconContainer.innerHTML = '🥃'.repeat(finalCount);
+                    // 結果テキストを表示（例: "5テキーラ"）
+                    resultText.innerHTML = `${finalCount}テキーラ`;
+                    // ボタンを有効化
+                    button.disabled = false;
+                }
+            }, 100); // 0.1秒ごとに更新
+        }
+    </script>
+</body>
+</html>
