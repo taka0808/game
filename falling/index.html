@@ -2,23 +2,26 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>テキーラショットキャッチ</title>
     <style>
         body {
             margin: 0;
+            padding: 0;
             overflow: hidden;
             font-family: Arial, sans-serif;
             background: #f0f0f0;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            height: 100vh;
+            justify-content: center;
+            touch-action: manipulation;
         }
         #gameArea {
-            width: 100%;
-            max-width: 800px;
-            height: 600px;
+            width: 100vw;
+            height: 70vh;
+            max-width: 500px;
             background: #fff;
             border: 2px solid #333;
             position: relative;
@@ -26,41 +29,66 @@
         }
         .shot {
             position: absolute;
-            font-size: 24px;
+            font-size: 6vw; /* フォントサイズを小さくして改行防止 */
             cursor: pointer;
             user-select: none;
+            touch-action: none;
             animation: fall 3s linear;
             opacity: 1;
+            width: 6vw; /* フォントサイズに合わせて幅調整 */
+            height: 6vw; /* タップエリアを確保 */
+            line-height: 6vw; /* 改行防止 */
+            text-align: center; /* 絵文字を中央に */
+            white-space: nowrap; /* 改行を防止 */
         }
         @keyframes fall {
-            0% { transform: translateY(-50px); opacity: 1; }
-            100% { transform: translateY(650px); opacity: 0; }
+            0% { transform: translateY(-10vh); opacity: 1; }
+            100% { transform: translateY(80vh); opacity: 0; }
         }
         #score {
-            font-size: 24px;
-            margin: 10px;
+            font-size: 5vw;
+            margin: 1vh 0;
+            text-align: center;
         }
         #timer {
-            font-size: 24px;
-            margin: 10px;
+            font-size: 5vw;
+            margin: 1vh 0;
+            text-align: center;
         }
         #gameOver {
             display: none;
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
             background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 20px;
+            padding: 4vw;
             border-radius: 10px;
+            width: 80vw;
+            max-width: 400px;
+        }
+        #gameOver h2 {
+            font-size: 6vw;
+            margin: 2vw 0;
+        }
+        #gameOver p {
+            font-size: 5vw;
+            margin: 2vw 0;
         }
         button {
-            font-size: 18px;
-            padding: 10px 20px;
+            font-size: 4vw;
+            padding: 2vw 4vw;
             cursor: pointer;
-            margin-top: 10px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            margin-top: 2vw;
+        }
+        button:active {
+            background: #0056b3;
         }
     </style>
 </head>
@@ -88,15 +116,23 @@
             const shot = document.createElement('div');
             shot.className = 'shot';
             shot.textContent = '🍸';
-            shot.style.left = Math.random() * (gameArea.offsetWidth - 30) + 'px';
-            shot.style.top = '-50px';
-            shot.addEventListener('click', () => {
-                score++;
-                scoreDisplay.textContent = `スコア: ${score}`;
-                shot.remove();
+            const shotWidth = gameArea.offsetWidth * 0.06; // 6vwに相当
+            const maxX = gameArea.offsetWidth - shotWidth; // 右端を超えない
+            shot.style.left = Math.random() * maxX + 'px';
+            shot.style.top = '-10vh';
+            shot.addEventListener('click', catchShot);
+            shot.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                catchShot(e);
             });
             gameArea.appendChild(shot);
             setTimeout(() => shot.remove(), 3000);
+        }
+
+        function catchShot(e) {
+            score++;
+            scoreDisplay.textContent = `スコア: ${score}`;
+            e.target.remove();
         }
 
         function updateTimer() {
