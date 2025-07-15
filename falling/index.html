@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テキーラショットキャッチ</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+        #gameArea {
+            width: 100%;
+            max-width: 800px;
+            height: 600px;
+            background: #fff;
+            border: 2px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+        .shot {
+            position: absolute;
+            font-size: 24px;
+            cursor: pointer;
+            user-select: none;
+            animation: fall 3s linear;
+            opacity: 1;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-50px); opacity: 1; }
+            100% { transform: translateY(650px); opacity: 0; }
+        }
+        #score {
+            font-size: 24px;
+            margin: 10px;
+        }
+        #timer {
+            font-size: 24px;
+            margin: 10px;
+        }
+        #gameOver {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">スコア: 0</div>
+    <div id="timer">残り時間: 10</div>
+    <div id="gameArea"></div>
+    <div id="gameOver">
+        <h2>ゲームオーバー</h2>
+        <p>最終スコア: <span id="finalScore">0</span></p>
+        <button onclick="startGame()">もう一度プレイ</button>
+    </div>
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalScoreDisplay = document.getElementById('finalScore');
+        let score = 0;
+        let timeLeft = 10;
+        let gameActive = false;
+
+        function createShot() {
+            if (!gameActive) return;
+            const shot = document.createElement('div');
+            shot.className = 'shot';
+            shot.textContent = '🍸';
+            shot.style.left = Math.random() * (gameArea.offsetWidth - 30) + 'px';
+            shot.style.top = '-50px';
+            shot.addEventListener('click', () => {
+                score++;
+                scoreDisplay.textContent = `スコア: ${score}`;
+                shot.remove();
+            });
+            gameArea.appendChild(shot);
+            setTimeout(() => shot.remove(), 3000);
+        }
+
+        function updateTimer() {
+            if (!gameActive) return;
+            timeLeft--;
+            timerDisplay.textContent = `残り時間: ${timeLeft}`;
+            if (timeLeft <= 0) {
+                endGame();
+            } else {
+                setTimeout(updateTimer, 1000);
+            }
+        }
+
+        function endGame() {
+            gameActive = false;
+            gameOverScreen.style.display = 'block';
+            finalScoreDisplay.textContent = score;
+            clearShots();
+        }
+
+        function clearShots() {
+            const shots = document.querySelectorAll('.shot');
+            shots.forEach(shot => shot.remove());
+        }
+
+        function startGame() {
+            score = 0;
+            timeLeft = 10;
+            scoreDisplay.textContent = `スコア: ${score}`;
+            timerDisplay.textContent = `残り時間: ${timeLeft}`;
+            gameOverScreen.style.display = 'none';
+            gameActive = true;
+            updateTimer();
+            const shotInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(shotInterval);
+                    return;
+                }
+                createShot();
+            }, 333);
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
